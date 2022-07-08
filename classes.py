@@ -338,9 +338,7 @@ class Player():
 
         if not name : # если имя не задано
             set_name(self)
-
-        if not itiscomp : # если не компьютер и имя не задано
-            set_itiscomp()
+            set_itiscomp(self)
 
     def set_status(self, status):
         self.status = status
