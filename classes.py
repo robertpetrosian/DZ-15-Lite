@@ -85,17 +85,24 @@ class Game:
                 if self.players[i].status == 0:
                     self.players[i].status = -1
 
-    def print_over(self):
+    def __str__(self):
         # вывод строки для печати результата игры
-        resultat = 'Игра завершена.\n'
+        resultat = 'Игра завершена.\n' if self.over else 'Игра продолжается.\n'
         resultat += 'Победители:\n'
         for i in range(len(self.players)):
             if self.players[i].status == 1:
                 resultat += ITISCOMP[self.players[i].itiscomp]+' '+ self.players[i].name+ '\n'
+
+        resultat += 'Играющие:\n'
+        for i in range(len(self.players)):
+            if self.players[i].status == 0:
+                resultat += ITISCOMP[self.players[i].itiscomp]+' '+ self.players[i].name+ '\n'
+
         resultat += 'Проигравшие:\n'
         for i in range(len(self.players)):
             if self.players[i].status == -1:
                 resultat += ITISCOMP[self.players[i].itiscomp]+' '+ self.players[i].name + '\n'
+
         return resultat
 
 class Bag:
@@ -123,7 +130,7 @@ class Bag:
 
     def get_random_barrel(self) -> int:
         """
-        перемешать мешок и вытащить последний бочонок
+        перемешать мешок и вытащить произвольный бочонок
         :return:
         """
         random.shuffle(self.barrels)
@@ -218,7 +225,7 @@ class Card:
             for i in functions.get_random_index():
                 self.card[row][i] = 0
 
-    def print_card(self):
+    def __str__(self):
         """
         :return: строка состоящую из 3 линий ячеек в строковм виде,
         """
@@ -232,21 +239,22 @@ class Card:
         return ret
 
     def cross_cell(self, number):
-        row, col = self.find_cell(number)
-        if row >= 0 and col >= 0:
+        if self.find_cell(number):
             # число найдено
             # делаю число отрицательным чтобы сохранить значение (для отладки),
-            # печататься будет прочерк
+            # печататься будет *
+            row, col = self.find_cell(number)
             self.card[row][col] *= -1
             return True
         else:
             return False
 
+
     def find_cell(self, number):
         """
         найти число в карточке
         :param number: число, которое ищем
-        :return: кортеж (строка, колонка)
+        :return: кортеж (строка, колонка) или 0 если неуспех
         """
         for row in range(3):
             # проход по строкам
@@ -254,7 +262,7 @@ class Card:
                 # проход по колонкам
                 if self.card[row][col] == number:
                     return row, col
-        return -1, -1
+        return 0
 
     def card_empty(self):
         """
@@ -300,21 +308,22 @@ class Player:
         number = -1 if number < 0 else number
         self._status = number
 
-    def info(self):
-        print(f'{ITISCOMP[self.itiscomp]} {self.name}. Статус {STATUS[self.status]}. Карта: ')
-        print(self.card.print_card())
+    def __str__(self):
+        ret = f'{ITISCOMP[self.itiscomp]} {self.name}. Статус {STATUS[self.status]}. Карта: \n'
+        ret += str(self.card)
+        return ret
 
     def check_step(self, barrel, step):
         # проверка верно или нет сделан ход и
         # установка статуса проиграл если ошибся
         # установка статуса выиграл если зачеркнул последнее число на карточке
         if step:  # реакция : надо зачеркнуть
-            checked = 0 if self.card.find_cell(barrel) == (-1, -1) else 1  # проверку прошел# / не  прошел
+            checked = 1 if self.card.find_cell(barrel) else 0  # проверку не  прошел / прошел#
         else:  # реакция : не надо зачеркнуть
-            checked = 1 if self.card.find_cell(barrel) == (-1, -1) else 0  # проверку не прошел# /  прошел
+            checked = 0 if self.card.find_cell(barrel)  else 1  # проверку  прошел# /  не прошел
 
         if checked:
-            if self.card.find_cell(barrel) != (-1, -1):
+            if self.card.find_cell(barrel) :
                 self.card.cross_cell(barrel)
                 if self.card.card_empty():
                     self.status = 1
