@@ -27,7 +27,7 @@ while not game.over:
             break
 
         if game.players[i].status != -1:
-            game.players[i].info()
+            print(game.players[i])
             print(f'Выпал бочонок {barrel}')
             choice = 0
             if game.players[i].itiscomp:
@@ -42,5 +42,6 @@ while not game.over:
                   f'выбрал действие {"зачеркнуть" if choice else "продолжить"}')
             game.players[i].check_step(barrel, choice)
 
-print(game.print_over())
+print(game)
+
 

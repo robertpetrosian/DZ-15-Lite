@@ -99,10 +99,8 @@ class TestCard:
         # проверка зачеркивания
         for number in range(1, 91):
             # проходим по ряду
-            row, col = self.card.find_cell(number)         # находим ячейку с таким числом
-            if row == -1 and col == -1:               # если ячейка с таким числом не найдена - пропуск
-                pass
-            else:
+            if self.card.find_cell(number):
+                row, col = self.card.find_cell(number)  # находим ячейку с таким числом
                 assert self.card.card[row][col] == number  # ячейка должна быть числом
                 assert self.card.cross_cell(number)  # изменение знака произошло успешно
                 assert self.card.card[row][col] == -1 * number  # ячейка должна числом со знаком "-"
@@ -116,7 +114,7 @@ class TestCard:
         self.card.card = [[1,0,3,-10,5,0,7,0,9],
                           [1,2,3,-4,5,6,7,8,9],
                           [1,2,3,4,0,60,7,8,9]]
-        assert self.card.print_card() == ' 1  .  3  *  5  .  7  .  9 \n'+' 1  2  3  *  5  6  7  8  9 \n'+' 1  2  3  4  . 60  7  8  9 \n'
+        assert str(self.card) == ' 1  .  3  *  5  .  7  .  9 \n'+' 1  2  3  *  5  6  7  8  9 \n'+' 1  2  3  4  . 60  7  8  9 \n'
         self.setup()
 
     def test_cross_cell(self):
@@ -133,7 +131,7 @@ class TestCard:
                           [1,2,3,4,0,60,7,8,9]]
         assert self.card.find_cell(7) == (0,6)
         assert self.card.find_cell(0) == (0,1)
-        assert self.card.find_cell(17) == (-1,-1)
+        assert self.card.find_cell(17) == 0
         assert self.card.find_cell(60) == (2,5)
         assert self.card.find_cell(-4) == (1,3)
 
@@ -212,12 +210,13 @@ class TestGame:
         self.setup()
         self.game.players[0].status = 1
         self.game.players[1].status = -1
-        self.game.players[2].status = -1
+        self.game.players[2].status = 0
 
-        resultat = self.game.print_over()
-        text = 'Игра завершена.\n'+\
+        resultat = str(self.game)
+        text = 'Игра продолжается.\n'+\
         'Победители:\n'+ classes.ITISCOMP[self.game.players[0].itiscomp] + ' ' + self.game.players[0].name + '\n'+\
-        'Проигравшие:\n'+classes.ITISCOMP[self.game.players[1].itiscomp] + ' ' + self.game.players[1].name + '\n'+\
-                         classes.ITISCOMP[self.game.players[2].itiscomp] + ' ' + self.game.players[2].name + '\n'
+        'Играющие:\n'  + classes.ITISCOMP[self.game.players[2].itiscomp] + ' ' + self.game.players[2].name + '\n'+\
+        'Проигравшие:\n'+classes.ITISCOMP[self.game.players[1].itiscomp] + ' ' + self.game.players[1].name + '\n'
+
         assert resultat == text
 
